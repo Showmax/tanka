@@ -46,7 +46,7 @@ func Apply(baseDir string, opts ApplyOpts) error {
 
 	// show diff
 	diff, err := kube.Diff(l.Resources, kubernetes.DiffOpts{
-		Strategy: opts.DiffStrategy,
+		Strategy:   opts.DiffStrategy,
 		DiffToFile: opts.DiffToFile,
 	})
 	switch {
@@ -126,9 +126,9 @@ func Diff(baseDir string, opts DiffOpts) (*string, error) {
 
 	return kube.Diff(l.Resources, kubernetes.DiffOpts{
 		DiffToFile: opts.DiffToFile,
-		Summarize: opts.Summarize,
-		Strategy:  opts.Strategy,
-		WithPrune: opts.WithPrune,
+		Summarize:  opts.Summarize,
+		Strategy:   opts.Strategy,
+		WithPrune:  opts.WithPrune,
 	})
 }
 
