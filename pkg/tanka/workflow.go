@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/fatih/color"
+	"github.com/pkg/errors"
 
 	"github.com/grafana/tanka/pkg/kubernetes"
 	"github.com/grafana/tanka/pkg/kubernetes/client"

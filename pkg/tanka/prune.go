@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/fatih/color"
+	"github.com/pkg/errors"
 
 	"github.com/grafana/tanka/pkg/kubernetes"
 	"github.com/grafana/tanka/pkg/term"
@@ -45,7 +46,7 @@ func Prune(baseDir string, opts PruneOpts) error {
 	if len(orphaned) == 0 {
 		log.Println("Nothing found to prune.")
 		if opts.DiffToFile != "" {
-			err = kubernetes.TruncateDiffToFile(opts.DiffToFile)
+			err = kubernetes.TruncateDiffFile(opts.DiffToFile)
 			if err != nil {
 				return err
 			}

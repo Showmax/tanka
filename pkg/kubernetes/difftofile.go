@@ -5,14 +5,15 @@ import (
 	"os"
 )
 
-// always create file for consistency
-func writeDiffToFile(path string, diff *string) error {
+// Write string to file
+// Create empty file if passed string is nil
+func writeStringToFile(path string, str *string) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
-	if diff != nil {
-		_, err = f.WriteString(*diff)
+	if str != nil {
+		_, err = f.WriteString(*str)
 		if err != nil {
 			return err
 		}
@@ -21,15 +22,15 @@ func writeDiffToFile(path string, diff *string) error {
 }
 
 func WriteDiffToFile(path string, diff *string) error {
-	err := writeDiffToFile(path, diff)
+	err := writeStringToFile(path, diff)
 	if err != nil {
 		return errors.Wrap(err, "writting diff to file")
 	}
 	return nil
 }
 
-// helper to produce and empty file
-// when we get empty diff we should produce an empty file
-func TruncateDiffToFile(path string) error {
+// Helper to produce an empty file
+// When we get empty diff we should produce an empty file
+func TruncateDiffFile(path string) error {
 	return WriteDiffToFile(path, nil)
 }
