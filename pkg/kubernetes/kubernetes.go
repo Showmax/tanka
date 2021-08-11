@@ -69,6 +69,8 @@ type DiffOpts struct {
 
 	// Set the diff-strategy. If unset, the value set in the spec is used
 	Strategy string
+	// Return diff as usual but also write it to a file
+	DiffToFile string
 }
 
 // Info about the client, etc.

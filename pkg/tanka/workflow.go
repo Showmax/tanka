@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/fatih/color"
+	"github.com/pkg/errors"
 
 	"github.com/grafana/tanka/pkg/kubernetes"
 	"github.com/grafana/tanka/pkg/kubernetes/client"
@@ -20,6 +21,8 @@ type ApplyOpts struct {
 	AutoApprove bool
 	// DiffStrategy to use for printing the diff before approval
 	DiffStrategy string
+	// DiffToFile also outputs diff to specified file
+	DiffToFile string
 
 	// Force ignores any warnings kubectl might have
 	Force bool
@@ -42,7 +45,10 @@ func Apply(baseDir string, opts ApplyOpts) error {
 	defer kube.Close()
 
 	// show diff
-	diff, err := kube.Diff(l.Resources, kubernetes.DiffOpts{Strategy: opts.DiffStrategy})
+	diff, err := kube.Diff(l.Resources, kubernetes.DiffOpts{
+		Strategy:   opts.DiffStrategy,
+		DiffToFile: opts.DiffToFile,
+	})
 	switch {
 	case err != nil:
 		// This is not fatal, the diff is not strictly required
@@ -89,6 +95,8 @@ func confirmPrompt(action, namespace string, info client.Info) error {
 type DiffOpts struct {
 	Opts
 
+	// DiffToFile also outputs diff to specified file
+	DiffToFile string
 	// Strategy must be one of "native", "validate", or "subset"
 	Strategy string
 	// Summarize prints a summary, instead of the actual diff
@@ -117,9 +125,10 @@ func Diff(baseDir string, opts DiffOpts) (*string, error) {
 	defer kube.Close()
 
 	return kube.Diff(l.Resources, kubernetes.DiffOpts{
-		Summarize: opts.Summarize,
-		Strategy:  opts.Strategy,
-		WithPrune: opts.WithPrune,
+		DiffToFile: opts.DiffToFile,
+		Summarize:  opts.Summarize,
+		Strategy:   opts.Strategy,
+		WithPrune:  opts.WithPrune,
 	})
 }
 
@@ -129,6 +138,8 @@ type DeleteOpts struct {
 
 	// AutoApprove skips the interactive approval
 	AutoApprove bool
+	// DiffToFile also outputs diff to specified file
+	DiffToFile string
 
 	// Force ignores any warnings kubectl might have
 	Force bool
@@ -155,7 +166,16 @@ func Delete(baseDir string, opts DeleteOpts) error {
 	diff, err := kubernetes.StaticDiffer(false)(l.Resources)
 
 	if err != nil {
-		fmt.Println("Error diffing:", err)
+		// static diff can't fail normally, so unlike in apply, this is fatal
+		// here
+		return errors.Wrap(err, "error diffing")
+	}
+
+	if opts.DiffToFile != "" {
+		err = kubernetes.WriteDiffToFile(opts.DiffToFile, diff)
+		if err != nil {
+			return err
+		}
 	}
 
 	// in case of non-fatal error diff may be nil

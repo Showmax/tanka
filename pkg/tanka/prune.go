@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/fatih/color"
+	"github.com/pkg/errors"
 
 	"github.com/grafana/tanka/pkg/kubernetes"
 	"github.com/grafana/tanka/pkg/term"
@@ -16,6 +17,8 @@ type PruneOpts struct {
 
 	// AutoApprove skips the interactive approval
 	AutoApprove bool
+	// DiffToFile also outputs diff to specified file
+	DiffToFile string
 	// Force ignores any warnings kubectl might have
 	Force bool
 }
@@ -42,6 +45,12 @@ func Prune(baseDir string, opts PruneOpts) error {
 
 	if len(orphaned) == 0 {
 		log.Println("Nothing found to prune.")
+		if opts.DiffToFile != "" {
+			err = kubernetes.TruncateDiffFile(opts.DiffToFile)
+			if err != nil {
+				return err
+			}
+		}
 		return nil
 	}
 
@@ -50,8 +59,16 @@ func Prune(baseDir string, opts PruneOpts) error {
 	if err != nil {
 		// static diff can't fail normally, so unlike in apply, this is fatal
 		// here
-		return err
+		return errors.Wrap(err, "error diffing")
 	}
+
+	if opts.DiffToFile != "" {
+		err = kubernetes.WriteDiffToFile(opts.DiffToFile, diff)
+		if err != nil {
+			return err
+		}
+	}
+
 	fmt.Print(term.Colordiff(*diff).String())
 
 	// print namespace removal warning

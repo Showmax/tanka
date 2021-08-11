@@ -82,14 +82,21 @@ Please upgrade kubectl to at least version 1.18.1.`)
 		{differ: staticDiffAllDeleted, state: orphaned},
 	}.diff()
 
-	switch {
-	case err != nil:
+	if err != nil {
 		return nil, err
-	case d == nil:
-		return nil, nil
 	}
 
-	if opts.Summarize {
+	// output diff to file if requested by command-line option
+	if opts.DiffToFile != "" {
+		err = WriteDiffToFile(opts.DiffToFile, d)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// summarize if there is non-empty diff and the summary was requested
+	// by command-line option
+	if d != nil && opts.Summarize {
 		return util.Diffstat(*d)
 	}
 

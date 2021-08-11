@@ -32,6 +32,7 @@ func applyCmd() *cli.Command {
 	cmd.Flags().BoolVar(&opts.Force, "force", false, "force applying (kubectl apply --force)")
 	cmd.Flags().BoolVar(&opts.Validate, "validate", true, "validation of resources (kubectl --validate=false)")
 	cmd.Flags().BoolVar(&opts.AutoApprove, "dangerous-auto-approve", false, "skip interactive approval. Only for automation!")
+	cmd.Flags().StringVar(&opts.DiffToFile, "diff-to-file", "", "Outputs diff as usual but also writes it to specified file")
 
 	vars := workflowFlags(cmd.Flags())
 	getJsonnetOpts := jsonnetFlags(cmd.Flags())
@@ -61,6 +62,7 @@ func pruneCmd() *cli.Command {
 	cmd.Flags().BoolVar(&opts.Force, "force", false, "force deleting (kubectl delete --force)")
 	cmd.Flags().BoolVar(&opts.AutoApprove, "dangerous-auto-approve", false, "skip interactive approval. Only for automation!")
 	cmd.Flags().StringVar(&opts.Name, "name", "", "Selects an environment from inline environments")
+	cmd.Flags().StringVar(&opts.DiffToFile, "diff-to-file", "", "Outputs diff as usual but also writes it to specified file")
 	getJsonnetOpts := jsonnetFlags(cmd.Flags())
 
 	cmd.Run = func(cmd *cli.Command, args []string) error {
@@ -83,6 +85,7 @@ func deleteCmd() *cli.Command {
 	cmd.Flags().BoolVar(&opts.Force, "force", false, "force deleting (kubectl delete --force)")
 	cmd.Flags().BoolVar(&opts.Validate, "validate", true, "validation of resources (kubectl --validate=false)")
 	cmd.Flags().BoolVar(&opts.AutoApprove, "dangerous-auto-approve", false, "skip interactive approval. Only for automation!")
+	cmd.Flags().StringVar(&opts.DiffToFile, "diff-to-file", "", "Outputs diff as usual but also writes it to specified file")
 
 	vars := workflowFlags(cmd.Flags())
 	getJsonnetOpts := jsonnetFlags(cmd.Flags())
@@ -116,6 +119,7 @@ func diffCmd() *cli.Command {
 	cmd.Flags().BoolVarP(&opts.Summarize, "summarize", "s", false, "print summary of the differences, not the actual contents")
 	cmd.Flags().BoolVarP(&opts.WithPrune, "with-prune", "p", false, "include objects deleted from the configuration in the differences")
 	cmd.Flags().BoolVarP(&opts.ExitZero, "exit-zero", "z", false, "Exit with 0 even when differences are found.")
+	cmd.Flags().StringVar(&opts.DiffToFile, "diff-to-file", "", "Outputs diff as usual but also writes it to specified file")
 
 	vars := workflowFlags(cmd.Flags())
 	getJsonnetOpts := jsonnetFlags(cmd.Flags())
